@@ -1,67 +1,146 @@
 const express = require("express");
-const session = require("express-session");  // express-sessionをインポート
+const session = require("express-session");
 const app = express();
 
-app.set('view engine', 'ejs'); // テンプレートエンジンを設定
-app.use("/public", express.static(__dirname + "/public")); // 静的ファイルのルート設定
+app.set('view engine', 'ejs');
+app.use("/public", express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true })); // POSTリクエストを扱うため
 
-// セッションミドルウェアの設定
+// セッションの設定
 app.use(session({
-  secret: 'your-secret-key',  // セッションIDを署名するための秘密鍵
-  resave: false,              // セッションが変更されていない場合に再保存しない
-  saveUninitialized: true,    // 初期化されていないセッションも保存
-  cookie: { secure: false }   // httpのみでのアクセスを許可（本番ではtrueにする）
+  secret: 'your-secret-key', // セッションIDを署名するための秘密鍵
+  resave: false, // セッションが変更されなくても保存するか
+  saveUninitialized: true, // 初期化されていないセッションも保存するか
+  cookie: { secure: false } // 本番環境でHTTPSを使用する場合は、secure: true に設定
 }));
 
-// トップページ（じゃんけんのフォームを表示）
-app.get("/", (req, res) => {
-  res.render("index"); // フォームを表示
-});
-
-// じゃんけんのルート
+// じゃんけん
 app.get("/janken", (req, res) => {
-  // セッションから勝ち数と試合数を取得（セッションに保存されていなければ初期値を設定）
-  const hand = req.query.hand; // プレイヤーの手
-  const win = req.session.win || 0; // 勝利数（セッションから取得）
-  const total = req.session.total || 0; // 対戦数（セッションから取得）
-
-  // CPUの手をランダムに決定
-  const cpuHand = ["グー", "チョキ", "パー"][Math.floor(Math.random() * 3)];
-
-  // 勝敗判定
-  let judgement;
-  if (
-    (hand === "グー" && cpuHand === "チョキ") ||
-    (hand === "チョキ" && cpuHand === "パー") ||
-    (hand === "パー" && cpuHand === "グー")
-  ) {
-    judgement = "勝ち";
-    req.session.win = win + 1;  // 勝った場合、勝利数を更新
-  } else if (hand === cpuHand) {
-    judgement = "引き分け";
-    req.session.win = win; // 勝ち数はそのまま
-  } else {
-    judgement = "負け";
-    req.session.win = win; // 勝ち数はそのまま
+  // 総試行回数がセッションに保存されていなければ初期化
+  if (!req.session.total) {
+    req.session.total = 0;
+    req.session.win = 0;
   }
 
-  // 試合回数を更新
-  req.session.total = total + 1;
-
-  // レンダリングして結果を表示
-  res.render("janken", {
-    your: hand, // ユーザーの手
-    cpu: cpuHand, // CPUの手
-    judgement: judgement, // 勝敗結果
-    win: req.session.win, // 勝利数
-    total: req.session.total, // 総試合数
+  // セッションから win と total を取得して渡す
+  res.render('janken', {
+    win: req.session.win,
+    total: req.session.total
   });
 });
 
-// 404エラーハンドリング
-app.use((req, res) => {
-  res.status(404).send("ページが見つかりません");
+app.post("/janken", (req, res) => {
+  let hand = req.body.hand;
+  let win = req.session.win;
+  let total = req.session.total;
+
+  // ユーザーが手を選んだ場合のみ実行
+  if (!hand) {
+    return res.send("手を選んでください！");
+  }
+
+  const num = Math.floor(Math.random() * 3 + 1);
+  let cpu = '';
+  if (num === 1) cpu = 'グー';
+  else if (num === 2) cpu = 'チョキ';
+  else cpu = 'パー';
+
+  let judgement = '';
+  if (
+    (hand === 'グー' && cpu === 'チョキ') ||
+    (hand === 'チョキ' && cpu === 'パー') ||
+    (hand === 'パー' && cpu === 'グー')
+  ) {
+    judgement = '勝ち';
+    win += 1;
+  } else if (hand === cpu) {
+    judgement = '引き分け';
+  } else {
+    judgement = '負け';
+  }
+
+  total += 1;
+
+  // セッションに勝ちと試行回数を保存
+  req.session.win = win;
+  req.session.total = total;
+
+  const display = {
+    your: hand,
+    cpu: cpu,
+    judgement: judgement,
+    win: win,
+    total: total
+  };
+
+  res.render('jankenResult', display);
 });
 
-// サーバー起動
+// BMI計算
+app.get("/bmi", (req, res) => {
+  res.render('bmi');
+});
+
+app.post("/bmi", (req, res) => {
+  let height = Number(req.body.height);  // 身長（cm）
+  let weight = Number(req.body.weight);  // 体重（kg）
+
+  if (!height || !weight) {
+    return res.send("身長と体重を入力してください！");
+  }
+
+  let bmi = weight / ((height / 100) ** 2);
+  let result = '';
+  if (bmi < 18.5) {
+    result = "低体重";
+  } else if (bmi < 24.9) {
+    result = "正常体重";
+  } else if (bmi < 29.9) {
+    result = "肥満（1度）";
+  } else if (bmi < 34.9) {
+    result = "肥満（2度）";
+  } else if (bmi < 39.9) {
+    result = "肥満（3度）";
+  } else {
+    result = "肥満（4度）";
+  }
+
+  const display = {
+    bmi: bmi.toFixed(2),
+    result: result
+  };
+
+  res.render('bmiResult', display);
+});
+
+// 占い
+app.get("/fortune", (req, res) => {
+  res.render('fortune');
+});
+
+app.post("/fortune", (req, res) => {
+  let name = req.body.name;
+
+  if (!name) {
+    return res.send("名前を入力してください！");
+  }
+
+  let fortunes = [
+    "今日はとてもラッキーな日です！",
+    "ちょっとした困難が待っているかもしれません。",
+    "素晴らしいチャンスが訪れる予感！",
+    "慎重に行動することが大切な日です。",
+    "身近な人とコミュニケーションを大切にして！"
+  ];
+
+  let randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+
+  const display = {
+    name: name,
+    fortune: randomFortune
+  };
+
+  res.render('fortuneResult', display);
+});
+
 app.listen(8080, () => console.log("Example app listening on port 8080!"));

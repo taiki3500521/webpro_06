@@ -2,17 +2,23 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>じゃんけん結果</title>
+    <title>じゃんけん</title>
 </head>
 <body>
-    <h1>じゃんけんの結果</h1>
-    <p>あなたの手: <%= your %></p>
-    <p>CPUの手: <%= cpu %></p>
-    <p>結果: <%= judgement %></p>
-    <p>勝ち数: <%= win %> 回</p>
-    <p>総試合数: <%= total %> 回</p>
-
-    <a href="/">もう一度プレイ</a>
+    <h1>じゃんけんを選んでください</h1>
+    <form action="/janken" method="POST">
+        <label>
+            <input type="radio" name="hand" value="グー" required> グー
+        </label>
+        <label>
+            <input type="radio" name="hand" value="チョキ" required> チョキ
+        </label>
+        <label>
+            <input type="radio" name="hand" value="パー" required> パー
+        </label><br>
+        <input type="hidden" name="win" value="<%= win %>">
+        <input type="hidden" name="total" value="<%= total %>">
+        <button type="submit">勝負！</button>
+    </form>
 </body>
 </html>
-
