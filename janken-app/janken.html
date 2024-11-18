@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>じゃんけん結果</title>
+</head>
+<body>
+    <h1>じゃんけんの結果</h1>
+    <p>あなたの手: <%= your %></p>
+    <p>コンピュータの手: <%= cpu %></p>
+    <p>勝敗: <%= judgement %></p>
+    <p>勝ち数: <%= win %></p>
+    <p>総対戦数: <%= total %></p>
+    <a href="/janken?hand=グー&win=<%= win %>&total=<%= total %>">もう一度プレイ</a>
+</body>
+</html>
