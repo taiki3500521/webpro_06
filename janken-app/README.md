@@ -47,6 +47,10 @@ flowchart TD;
    H --> I[結果を表示];
    I --> J[終了];
 ```
+## 占いのフローチャート
+```mermaid
+flowchart TD;
+   
 
 
 
