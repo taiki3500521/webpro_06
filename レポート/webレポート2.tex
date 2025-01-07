@@ -1,0 +1,134 @@
+\documentclass[uplatex,dvipdfmx]{jsarticle}
+
+\usepackage[uplatex,deluxe]{otf} % UTF
+\usepackage[noalphabet]{pxchfon} % must be after otf package
+\usepackage{stix2} % 欧文＆数式フォント
+\usepackage[fleqn,tbtags]{mathtools} % 数式関連 (w/ amsmath)
+\usepackage{hyperref}
+
+\title{Web掲示板システム仕様書}
+\author{小川 泰生}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{はじめに}
+本レポートは,Web掲示板システムについて,利用者向けガイド,管理者向けガイド,および開発者向けガイドの3つの視点から構成されています.以下に,それぞれのセクションの内容について説明します.
+
+\subsection{レポートの構成概要}
+\begin{enumerate}
+    \item 利用者向けガイド:
+    \begin{itemize}
+        \item アプリケーションの目的や機能一覧を説明し,ユーザーがどのようにアプリケーションを操作するかを示す,タスクの追加・削除・完了状態の変更など,主要な機能についての操作方法を具体的に説明する.
+    \end{itemize}
+    \item 管理者向けガイド:
+    \begin{itemize}
+        \item サーバーセットアップやシステム要件について説明し,管理者がアプリケーションを正常に運用するために必要な手順を記載する.
+    \end{itemize}
+    \item 開発者向けガイド:
+    \begin{itemize}
+        \item プロジェクトのディレクトリ構造,ファイル構成,使用した技術について説明する.
+        \item フロントエンドとバックエンド間のAPI通信の仕様（エンドポイント,データ形式,リクエストとレスポンスの例など）を記載する.
+        \item 将来的な拡張案や改善点についても提案する.
+    \end{itemize}
+\end{enumerate}
+
+\section{利用者向けガイド}
+\subsection{アプリケーションの目的}
+Web掲示板システムは,ユーザーがメッセージを投稿,表示,ソート,削除できるよう設計されています.ユーザーが簡単に操作できるインターフェイスを提供し,コミュニケーションを円滑にします.
+
+\subsection{画面のレイアウトとボタンの仕様}
+掲示板システムの画面は以下の要素で構成されています.
+\begin{itemize}
+    \item \textbf{ヘッダー}: システムのタイトルを表示します.
+    \item \textbf{入力フィールド}: 名前とメッセージを入力するためのテキストフィールドです.
+    \item \textbf{送信ボタン}: 入力されたメッセージを掲示板に追加します.
+    \item \textbf{リセットボタン}: すべての投稿を削除します.
+    \item \textbf{ソートボタン}: メッセージを名前順でソートします.
+    \item \textbf{投稿表示ボタン}: すべての投稿を表示します.
+    \item \textbf{文字数カウント}: メッセージの文字数をリアルタイムで表示します.
+\end{itemize}
+
+\section{管理者向けガイド}
+\subsection{サーバーのセットアップ}
+このアプリケーションは,ターミナルを使用して\texttt{app8.js}を起動することでサーバーが動作します.以下の手順に従って、サーバーをセットアップします.
+\begin{enumerate}
+    \item \texttt{app8.js}を使用したサーバーの起動
+    \begin{verbatim}
+    node app8.js
+    \end{verbatim}
+    このコマンドを実行すると,サーバーが起動し,アプリケーションが動作します.
+
+    \item サーバーの動作確認
+    ブラウザで以下のURLにアクセスして、掲示板が正常に動作することを確認します.
+    \begin{verbatim}
+    http://localhost:8080/public/bbs.html
+    \end{verbatim}
+\end{enumerate}
+
+\section{開発者向けガイド}
+\subsection{内部的な作りと変数の意味}
+このアプリケーションの主な内部構造と変数の意味を以下に示します.
+\begin{itemize}
+    \item \textbf{mainContainer}: メッセージリストを格納する要素.
+    \item \textbf{nameInput}: 名前を入力するテキストフィールド.
+    \item \textbf{messageInput}: メッセージを入力するテキストフィールド.
+    \item \textbf{charCount}: メッセージの文字数をカウントする要素.
+    \item \textbf{addMessage}: メッセージをリストに追加する関数.
+\end{itemize}
+
+\subsection{通信内容}
+フロントエンドとバックエンドの通信は,以下のエンドポイントを使用して行われます.
+\begin{itemize}
+    \item \textbf{GET /messages}: すべてのメッセージを取得.
+    \item \textbf{POST /messages}: 新しいメッセージを追加.
+    \item \textbf{DELETE /messages/:id}: 指定されたIDのメッセージを削除.
+\end{itemize}
+
+\subsubsection{リクエスト例}
+\begin{verbatim}
+POST /messages
+{
+  "name": "ユーザー名",
+  "message": "メッセージ内容"
+}
+\end{verbatim}
+
+\subsubsection{レスポンス例}
+\begin{verbatim}
+{
+  "id": 1,
+  "name": "ユーザー名",
+  "message": "メッセージ内容",
+  "timestamp": "2025-01-07T12:00:00Z"
+}
+\end{verbatim}
+
+\subsection{データ形式の詳細}
+メッセージデータはJSON形式でやり取りされます.以下に,主要なデータフィールドとその説明を示します.
+\begin{itemize}
+    \item \textbf{id}: メッセージの一意の識別子（整数）
+    \item \textbf{name}: メッセージを投稿したユーザーの名前（文字列）
+    \item \textbf{message}: 投稿されたメッセージ内容（文字列）
+    \item \textbf{timestamp}: メッセージが投稿された日時（ISO 8601形式の文字列）
+\end{itemize}
+
+\subsection{通信フロー}
+メッセージの送信と取得の基本的なフローは以下の通りです.
+\begin{enumerate}
+    \item ユーザーがメッセージを入力し,送信ボタンをクリックすると,フロントエンドからバックエンドにPOSTリクエストが送信されます.
+    \item バックエンドはリクエストを受け取り,新しいメッセージをデータベースに保存し,保存されたメッセージのデータをレスポンスとして返します.
+    \item フロントエンドはレスポンスを受け取り,新しいメッセージを画面に表示します.
+\end{enumerate}
+
+\section{GitHubリポジトリ}
+このアプリケーションのソースコードはGitHubでホストされています.以下のURLからアクセスできます：
+\url{https://github.com/Ogitai/SPA.git}
+
+\end{document}
+
+
