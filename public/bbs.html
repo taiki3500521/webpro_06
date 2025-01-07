@@ -8,16 +8,20 @@
     <link rel="stylesheet" href="./bbs.css">
 </head>
 <body>
+    <h1>掲示板</h1>
     <div id="bbs"></div>
     <div>
         <label for="name">名前：</label>
         <input type="text" id="name">
-        <label for="name">メッセージ：</label>
+        <label for="message">メッセージ：</label>
         <input type="text" id="message">
         <button type="button" id="post">送信</button>
     </div>
-    <div id="check">
-        <button type="button" id="check">投稿チェック</button>
+    <div id="controls">
+        <button type="button" id="reset">リセット</button>
+        <button type="button" id="viewAll">すべての投稿を見る</button>
+        <button type="button" id="sort">名前順でソート</button>
     </div>
+    <span id="charCount">0/200</span>
 </body>
 </html>
