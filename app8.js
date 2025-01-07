@@ -14,7 +14,7 @@ app.get("/count", (req, res) => {
 
 app.delete("/clear", (req, res) => {
     bbs = [];
-    res.json({ message: "すべての投稿を削除しました。" });
+    res.json({ message: "入力内容を削除しました。" });
 });
 
 app.post("/read", (req, res) => {
