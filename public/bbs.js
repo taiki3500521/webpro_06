@@ -4,7 +4,6 @@ let number = 0;
 const bbs = document.querySelector('#bbs');
 const postButton = document.querySelector('#post');
 
-// リセットボタンを生成または取得し、イベントリスナーを確実に登録
 let resetButton = document.querySelector('#reset');
 if (!resetButton) {
     resetButton = document.createElement('button');
@@ -18,7 +17,6 @@ resetButton.addEventListener('click', () => {
     document.querySelector('#charCount').innerText = '0/200';
 });
 
-// 文字数カウントの設定
 let charCount = document.querySelector('#charCount');
 if (!charCount) {
     charCount = document.createElement('span');
@@ -32,7 +30,6 @@ document.querySelector('#message').addEventListener('input', () => {
     charCount.style.color = message.length > 200 ? 'red' : 'black';
 });
 
-// "すべての投稿を見る" ボタンの生成または取得とイベントリスナー設定
 let viewAllButton = document.querySelector('#viewAll');
 if (!viewAllButton) {
     viewAllButton = document.createElement('button');
@@ -51,7 +48,7 @@ viewAllButton.addEventListener('click', () => {
             return response.json();
         })
         .then(response => {
-            bbs.innerHTML = ''; // 現在の投稿をクリア
+            bbs.innerHTML = ''; 
             response.messages.forEach(mes => {
                 const cover = document.createElement('div');
                 cover.className = 'cover';
@@ -68,7 +65,6 @@ viewAllButton.addEventListener('click', () => {
         });
 });
 
-// "名前順でソート" ボタンの生成または取得とイベントリスナー設定
 let sortButton = document.querySelector('#sort');
 if (!sortButton) {
     sortButton = document.createElement('button');
@@ -88,7 +84,7 @@ sortButton.addEventListener('click', () => {
         })
         .then(response => {
             const sortedMessages = response.messages.sort((a, b) => a.name.localeCompare(b.name));
-            bbs.innerHTML = ''; // 現在の投稿をクリア
+            bbs.innerHTML = ''; 
             sortedMessages.forEach(mes => {
                 const cover = document.createElement('div');
                 cover.className = 'cover';
@@ -105,19 +101,18 @@ sortButton.addEventListener('click', () => {
         });
 });
 
-// 投稿ボタンの取得とクリックイベントリスナーの登録
 if (postButton) {
     postButton.addEventListener('click', () => {
         const name = document.querySelector('#name').value;
         const message = document.querySelector('#message').value;
 
-        // メッセージが200文字を超えている場合のバリデーション
+        
         if (message.length > 200) {
             alert('メッセージが200文字を超えています。短くしてください。');
             return;
         }
 
-        // サーバーに送信するデータの準備
+        
         const params = {
             method: "POST",
             body: `name=${encodeURIComponent(name)}&message=${encodeURIComponent(message)}`,
@@ -126,7 +121,7 @@ if (postButton) {
             }
         };
 
-        // サーバーに投稿を送信
+       
         fetch("/post", params)
             .then((response) => {
                 if (!response.ok) {

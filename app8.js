@@ -2,29 +2,26 @@
 const express = require("express");
 const app = express();
 
-let bbs = [];  // 本来はDBMSを使用するが，今回はこの変数にデータを蓄える
+let bbs = []; 
 
 app.set('view engine', 'ejs');
 app.use("/public", express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }));
 
-// 新しいエンドポイント: 投稿数を取得
 app.get("/count", (req, res) => {
     res.json({ count: bbs.length });
 });
 
-// 新しいエンドポイント: 全投稿を削除
 app.delete("/clear", (req, res) => {
     bbs = [];
     res.json({ message: "すべての投稿を削除しました。" });
 });
 
-// 既存の投稿一覧取得に最新順ソートを追加
 app.post("/read", (req, res) => {
     const start = Number(req.body.start);
     console.log("read -> " + start);
 
-    const sortedBbs = [...bbs].reverse(); // 最新順にソート
+    const sortedBbs = [...bbs].reverse(); 
 
     if (start === 0) {
         res.json({ messages: sortedBbs });
@@ -33,7 +30,6 @@ app.post("/read", (req, res) => {
     }
 });
 
-// 投稿処理
 app.post("/post", (req, res) => {
     const name = req.body.name;
     const message = req.body.message;
@@ -44,7 +40,6 @@ app.post("/post", (req, res) => {
     res.json({ number: bbs.length });
 });
 
-// その他既存のエンドポイント
 app.get("/hello1", (req, res) => {
     const message1 = "Hello world";
     const message2 = "Bon jour";
@@ -91,5 +86,4 @@ app.get("/janken", (req, res) => {
     res.render('janken', display);
 });
 
-// アプリケーションを起動
 app.listen(8080, () => console.log("Example app listening on port 8080!"));
